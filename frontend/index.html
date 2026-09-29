@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User CRUD</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>User Management</h1>
+
+    <h2>Add User</h2>
+
+    <input
+        id="name"
+        placeholder="Name"
+    >
+
+    <input
+        id="email"
+        placeholder="Email"
+    >
+
+    <button onclick="createUser()">
+        Add User
+    </button>
+
+    <h2>Users</h2>
+
+    <button onclick="getUsers()">
+        Refresh Users
+    </button>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+
+        <tbody id="usersTable"></tbody>
+
+    </table>
+
+
+<script>
+
+const API_URL = window.location.origin;
+
+
+async function createUser() {
+
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+
+    const response = await fetch(
+        `${API_URL}/users`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                name: name,
+                email: email
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    alert(data.message || "User created");
+
+    getUsers();
+}
+
+
+async function getUsers() {
+
+    const response = await fetch(
+        `${API_URL}/users`
+    );
+
+    const users = await response.json();
+
+    const table =
+        document.getElementById("usersTable");
+
+    table.innerHTML = "";
+
+    users.forEach(user => {
+
+        table.innerHTML += `
+            <tr>
+
+                <td>${user.id}</td>
+
+                <td>${user.name}</td>
+
+                <td>${user.email}</td>
+
+                <td>
+                    <button
+                        onclick="deleteUser(${user.id})">
+                        Delete
+                    </button>
+                </td>
+
+            </tr>
+        `;
+
+    });
+}
+
+
+async function deleteUser(id) {
+
+    await fetch(
+        `${API_URL}/users/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    getUsers();
+}
+
+
+getUsers();
+
+</script>
+
+</body>
+
+</html>
